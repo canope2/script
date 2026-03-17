@@ -1,33 +1,27 @@
+-- [[ SECURITY CHECK ]]
+-- This checks if the global variable Alen12345 is true (set by your key system)
 if not _G.Alen12345 then
     local player = game.Players.LocalPlayer
-    player:Kick("Unauthorized Execution: Please use the official Key System to run Script Name")
+    player:Kick("Unauthorized Execution: Please use the official Key System to run Advanced Studio")
     return
 end
 
-task.spawn(function()
-    local VIM = game:GetService("VirtualInputManager")
-    VIM:SendKeyEvent(true, Enum.KeyCode.F9, false, game)
-    VIM:SendKeyEvent(false, Enum.KeyCode.F9, false, game)
-    
-    BootLog()
-    
-    task.wait(0.7)
-    
-    VIM:SendKeyEvent(true, Enum.KeyCode.F9, false, game)
-    VIM:SendKeyEvent(false, Enum.KeyCode.F9, false, game)
-end)
-
+-------------------------------------------------------------------------------
+-- SERVICES & VARIABLES
+-------------------------------------------------------------------------------
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VIM = game:GetService("VirtualInputManager")
 
 local player = Players.LocalPlayer
 local pGui = player:WaitForChild("PlayerGui")
 
-local _G = { 
+-- Renamed from _G to Settings to prevent overwriting the global table
+local Settings = { 
     AutoTake = false, 
     AutoSell = false,
     AutoCollectMoney = true, 
@@ -36,19 +30,37 @@ local _G = {
     Range = 100 
 }
 
-if pGui:FindFirstChild("Advanced_Studio_Elite_V12") then pGui.Advanced_Studio_Elite_V12:Destroy() end
+-------------------------------------------------------------------------------
+-- INITIALIZATION & CONSOLE
+-------------------------------------------------------------------------------
+task.spawn(function()
+    VIM:SendKeyEvent(true, Enum.KeyCode.F9, false, game)
+    VIM:SendKeyEvent(false, Enum.KeyCode.F9, false, game)
+    
+    -- Ensure BootLog exists before calling to prevent errors
+    if _G.BootLog then _G.BootLog() end
+    
+    task.wait(0.7)
+    
+    VIM:SendKeyEvent(true, Enum.KeyCode.F9, false, game)
+    VIM:SendKeyEvent(false, Enum.KeyCode.F9, false, game)
+end)
+
+-------------------------------------------------------------------------------
+-- UI ELEMENTS
+-------------------------------------------------------------------------------
+if pGui:FindFirstChild("Advanced_Studio_Elite_V12") then 
+    pGui.Advanced_Studio_Elite_V12:Destroy() 
+end
+
 local Hub = Instance.new("ScreenGui", pGui)
 Hub.Name = "Advanced_Studio_Elite_V12"
 Hub.ResetOnSpawn = false
 
-local function ApplyDesign(obj, radius, color, isMain)
-    -- Add the corner
+local function ApplyDesign(obj, radius, isMain)
     local corner = Instance.new("UICorner", obj)
     corner.CornerRadius = UDim.new(0, radius)
     
-    -- UIStroke code has been removed from here
-    
-    -- Keep the gradient logic for the main frames
     if isMain then
         local gradient = Instance.new("UIGradient", obj)
         gradient.Color = ColorSequence.new({
@@ -58,12 +70,13 @@ local function ApplyDesign(obj, radius, color, isMain)
     end
 end
 
+-- Mini Dashboard
 local Show = Instance.new("Frame", Hub)
 Show.Name = "MiniDash"
 Show.Size = UDim2.new(0, 220, 0, 110)
 Show.Position = UDim2.new(0.02, 0, 0.4, 0)
 Show.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
-ApplyDesign(Show, 12, Color3.fromRGB(0, 255, 255), true)
+ApplyDesign(Show, 12, true)
 
 local DashTitle = Instance.new("TextLabel", Show)
 DashTitle.Size = UDim2.new(1, 0, 0.3, 0)
@@ -91,15 +104,15 @@ ToggleBtn.Text = "CORE_PANEL: ACTIVE"
 ToggleBtn.TextColor3 = Color3.new(1, 1, 1)
 ToggleBtn.Font = Enum.Font.GothamBold
 ToggleBtn.TextSize = 11
-ApplyDesign(ToggleBtn, 6)
+ApplyDesign(ToggleBtn, 6, false)
 
+-- Main Frame
 local Main = Instance.new("Frame", Hub)
 Main.Name = "MainFrame"
 Main.Size = UDim2.new(0, 320, 0, 420)
 Main.Position = UDim2.new(0.5, -160, 0.5, -210)
 Main.BackgroundColor3 = Color3.fromRGB(8, 8, 12)
-Main.Visible = true 
-ApplyDesign(Main, 15, Color3.fromRGB(0, 255, 255), true)
+ApplyDesign(Main, 15, true)
 
 local Header = Instance.new("Frame", Main)
 Header.Size = UDim2.new(1, 0, 0, 55)
@@ -134,11 +147,14 @@ local Layout = Instance.new("UIListLayout", Scroll)
 Layout.Padding = UDim.new(0, 10)
 Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
+-------------------------------------------------------------------------------
+-- COMPONENTS
+-------------------------------------------------------------------------------
 local function CreateToggle(name, startOn, callback)
     local Frame = Instance.new("Frame", Scroll)
     Frame.Size = UDim2.new(0.95, 0, 0, 45)
     Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    ApplyDesign(Frame, 8, Color3.fromRGB(60, 60, 80))
+    ApplyDesign(Frame, 8, false)
 
     local Label = Instance.new("TextLabel", Frame)
     Label.Size = UDim2.new(0.6, 0, 1, 0)
@@ -154,13 +170,13 @@ local function CreateToggle(name, startOn, callback)
     SwitchBG.Size = UDim2.new(0, 40, 0, 20)
     SwitchBG.Position = UDim2.new(1, -55, 0.5, -10)
     SwitchBG.BackgroundColor3 = startOn and Color3.fromRGB(100, 0, 255) or Color3.fromRGB(40, 40, 50)
-    ApplyDesign(SwitchBG, 10, Color3.new(1,1,1))
+    ApplyDesign(SwitchBG, 10, false)
 
     local Ball = Instance.new("Frame", SwitchBG)
     Ball.Size = UDim2.new(0, 14, 0, 14)
     Ball.Position = startOn and UDim2.new(1, -18, 0.5, -7) or UDim2.new(0, 4, 0.5, -7)
     Ball.BackgroundColor3 = Color3.new(1, 1, 1)
-    ApplyDesign(Ball, 10)
+    ApplyDesign(Ball, 10, false)
 
     local Clicker = Instance.new("TextButton", Frame)
     Clicker.Size = UDim2.new(1, 0, 1, 0)
@@ -179,9 +195,12 @@ local function CreateToggle(name, startOn, callback)
     callback(startOn)
 end
 
+-------------------------------------------------------------------------------
+-- AUTOMATION LOOPS
+-------------------------------------------------------------------------------
 task.spawn(function()
     while task.wait(0.1) do
-        if _G.AutoTake and player.Character then
+        if Settings.AutoTake and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
             for _, v in ipairs(Workspace:GetDescendants()) do
                 if v:IsA("ProximityPrompt") then
                     local objT, actT = v.ObjectText:lower(), v.ActionText:lower()
@@ -196,7 +215,7 @@ task.spawn(function()
                     local isHuman = v.Parent:FindFirstAncestorOfClass("Model") and v.Parent:FindFirstAncestorOfClass("Model"):FindFirstChild("Humanoid")
 
                     if not (isBad or isHuman) and name ~= "place brainrot" then
-                        if (player.Character.HumanoidRootPart.Position - v.Parent.Position).Magnitude < _G.Range then
+                        if (player.Character.HumanoidRootPart.Position - v.Parent.Position).Magnitude < Settings.Range then
                             v.HoldDuration = 0
                             fireproximityprompt(v)
                         end
@@ -209,7 +228,7 @@ end)
 
 task.spawn(function()
     while task.wait(0.3) do
-        if _G.AutoCollectMoney then
+        if Settings.AutoCollectMoney and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
             pcall(function()
                 for _, v in ipairs(Workspace:GetDescendants()) do
                     if v.Name == "Collect" and v:IsA("BasePart") then
@@ -221,30 +240,60 @@ task.spawn(function()
                 if rem then rem:FireServer() end
             end)
         end
-        if _G.AutoSell then pcall(function() ReplicatedStorage.RemoteFunctions.SellAll:InvokeServer() end) end
+        if Settings.AutoSell then 
+            pcall(function() 
+                local sellRem = ReplicatedStorage:FindFirstChild("RemoteFunctions") and ReplicatedStorage.RemoteFunctions:FindFirstChild("SellAll")
+                if sellRem then sellRem:InvokeServer() end
+            end) 
+        end
     end
 end)
 
 RunService.Stepped:Connect(function()
-    if _G.Fly and player.Character then
-        player.Character.HumanoidRootPart.Velocity = (player.Character.Humanoid.MoveDirection * _G.Speed) + Vector3.new(0, 2, 0)
+    if Settings.Fly and player.Character and player.Character:FindFirstChild("Humanoid") then
+        player.Character.HumanoidRootPart.Velocity = (player.Character.Humanoid.MoveDirection * Settings.Speed) + Vector3.new(0, 2, 0)
         player.Character.Humanoid.PlatformStand = true
     elseif player.Character and player.Character:FindFirstChild("Humanoid") then
         player.Character.Humanoid.PlatformStand = false
     end
 end)
 
-CreateToggle("Auto-Collect Money", true, function(v) _G.AutoCollectMoney = v end)
-CreateToggle("Super Instant Sell", false, function(v) _G.AutoSell = v end)
-CreateToggle("Advanced Auto-Take", false, function(v) _G.AutoTake = v end)
-CreateToggle("Phantom Flight (150)", false, function(v) _G.Fly = v end)
+-------------------------------------------------------------------------------
+-- SETUP UI CONTROLS
+-------------------------------------------------------------------------------
+CreateToggle("Auto-Collect Money", true, function(v) Settings.AutoCollectMoney = v end)
+CreateToggle("Super Instant Sell", false, function(v) Settings.AutoSell = v end)
+CreateToggle("Advanced Auto-Take", false, function(v) Settings.AutoTake = v end)
+CreateToggle("Phantom Flight (150)", false, function(v) Settings.Fly = v end)
 
-task.spawn(function() while task.wait(1) do DashTime.Text = os.date("%X") end end)
+task.spawn(function() 
+    while task.wait(1) do 
+        DashTime.Text = os.date("%X") 
+    end 
+end)
 
 ToggleBtn.MouseButton1Click:Connect(function() 
     Main.Visible = not Main.Visible 
     ToggleBtn.Text = Main.Visible and "CORE_PANEL: ACTIVE" or "CORE_PANEL: HIDDEN"
 end)
 
-local function drag(f, h) local s, st, p h.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then s=true st=i.Position p=f.Position end end) UIS.InputChanged:Connect(function(i) if s and i.UserInputType == Enum.UserInputType.MouseMovement then local d=i.Position-st f.Position=UDim2.new(p.X.Scale, p.X.Offset+d.X, p.Y.Scale, p.Y.Offset+d.Y) end end) UIS.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then s=false end end) end
-drag(Main, Header) drag(Show, DashTitle)
+local function drag(f, h) 
+    local s, st, p 
+    h.InputBegan:Connect(function(i) 
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then 
+            s=true st=i.Position p=f.Position 
+        end 
+    end) 
+    UIS.InputChanged:Connect(function(i) 
+        if s and i.UserInputType == Enum.UserInputType.MouseMovement then 
+            local d=i.Position-st 
+            f.Position=UDim2.new(p.X.Scale, p.X.Offset+d.X, p.Y.Scale, p.Y.Offset+d.Y) 
+        end 
+    end) 
+    UIS.InputEnded:Connect(function(i) 
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then s=false end 
+    end) 
+end
+
+drag(Main, Header) 
+drag(Show, DashTitle)
